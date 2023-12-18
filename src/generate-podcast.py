@@ -53,19 +53,24 @@ async def generate_voice(text, index):
         }
     }
 
-    # Make API request
-    response = requests.post(API_URL, json=payload, headers=headers)
+    success = False
+    while not success:
+        # Make API request
+        response = requests.post(API_URL, json=payload, headers=headers)
 
-    # Check for errors
-    if response.status_code != 200:
-        print(f"Error: {response.text}")
+        if response.status_code == 200:
+            print(f"Writing audio file for index: {index}")
 
-    else:
-        print(f"Writing audio file for index: {index}")
+            # Write audio content to file
+            with open(f'./output/chunks/test_data{index}{EXTENSION}', 'wb') as file:
+                file.write(response.content)
+            success = True
+        else:
+            print(f"Error: {response.text}. Retrying...")
+            time.sleep(5)  # Wait for 5 seconds before retrying
 
-        # Write audio content to file
-        with open(f'./output/chunks/test_data{index}{EXTENSION}', 'wb') as file:
-            file.write(response.content)
+    print(f"Audio file generated for index: {index}")
+
 
 # Main function
 
